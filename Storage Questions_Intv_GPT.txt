@@ -1,0 +1,2163 @@
+
+
+===============================================================================================
+---> What is Disaster Recovery? (*****)	 
+
+Disaster recovery is required for business continuity and to avoid data loss, revenue loss.
+Disaster recovery enable us to run all critical business applications, databases and services 
+from DR site after a disaster.
+
+Disaster recovery is a secondary site where all the production data from primary site is replicated.
+If there is any disaster happens at primary site then DR site is invoked 
+and all critical bsiness applications, databases and services are run from DR site. 
+Disaster can be due to power failure, Huge fire, earthquake etc.
+The primary site and the DR site should be located in two different geographical locations.
+Nowadays, we can also use cloud as DR site.
+
+===============================================================================================	
+Benefit of effective disaster recovery?
+
+Effective disaster recovery enables to recover quickly after a disaster with minimal loss of data. 
+It also helps is completing backup faster.
+	
+	
+How is disaster recovery performed?
+
+We use below technologies for disaster recovery.
+Replication and Backup/Restore.
+	
+===============================================================================================	
+(*****)	 ---> What is RPO?  	"RPO means Recovery Point Object.
+
+RPO is the point-in-time to which data must be recovered after an outage.
+RPO defines the amount of data loss that a business can accept. 
+Based on the RPO, we can plan for the frequency of backup or replication.
+For example, if the RPO of a particular business application is 12 hours, 
+then backups should be taken in every 12 hours."
+===============================================================================================	
+
+(*****)	 ---> What is RTO?
+
+RTO means Recovery Time Object
+
+RTO is the time within which data must be recovered after an outage.
+RTO is the downtime that a business can accept."
+
+===============================================================================================	
+	
+(*****)	 ---> What technology you use for disaster recovery?
+	Backup, restore, Synchronous and Asynchronous Replication.
+	
+===============================================================================================	
+(*****)	What is replication
+
+Replication is a continuous process of coping production data from primary site to DR site 
+to support backup and disaster recovery.
+	
+===============================================================================================	
+(*****)	 ---> What is Synchronous replicatoin?
+
+Synchronous replication is a mode of replication.
+Synchronous replication provides zero RPO.
+In Synchronous replication, server sends a write request to source storage.
+Source storage writes data to the cache and sends the data to remote storage.
+Remote storage writes data to the cache and sends acknowledgement to source storage.
+Source storage sends ""write-complete"" acknowledgement to server.
+
+In synchronous replication, Application response time is increased as writes are committed 
+ot both the source and the remote storage before sending the “write complete” acknowledgment 
+to the server.
+The supported distance between source and remote storage should be between 100KM to 150KM 
+and RTT should be less than 10ms."
+	There are 2 modes in synchronous replication (StrictSync and Sync)
+	
+===============================================================================================	
+(*****)	 ---> What is Asynchronous replication:
+
+Asynchronous replication is a mode of replication.
+In Asynchronous replication, RPO is configurable from 5 minutes to 24 hours.
+In Asynchronous replication, server sends a write request to source storage.
+Source storage writes data to the cache and immediately sends ""write-complete"" acknowledgement 
+to the server.
+After that as per predefined schedule, source storage sends data to Remote storage.
+Remote storage writes data to the cache and sends acknowledgement to the source storage.
+
+In Asynchronous replication, application response time is not increased as the writes are 
+commited to source storage only and source storage immediately 
+sends the ""write complete” acknowledgment to the server.
+
+Supported distance between source and remote storage can be 1000s of kilometers"
+	
+===============================================================================================
+(*****)	 ---> What is snapshot?
+
+Snapshot is dependant point in time copy of source volume. 
+During snapshot it does not copy all the data from source volume to snapshot 
+but it only creates pointers to source data.      
+Initially, snapshot does not reserve any space but as the data changes on source volume, 
+it starts consuming storage space to store data.
+So as the time progresses, snapshot size increases"
+	
+===============================================================================================	
+(*****)	 ---> How snapshot works? Snapshot methods?
+
+There are 2 types of snapshot technologies are in use 
+"Copy On Write First"  technology or "Redirect On Write" technology.
+
+In Copy On Write First technology, If there is any data change on the source volume 
+then old data from source volume is copied to snapshot and new data is written to source volume.          
+Snapshot holds old data and source volume holds latest data. 
+Performance is little impacted here as data is copied from source volume to snapshot 
+and then new data is wrtten to source volume."
+
+"In Redirect On Write technology" 
+If there is any data change on the source volume, then new data is redirected to snapshot
+and source volume is intact. 
+In ROW technology, snapshot holds new data and source volume holds old data. 
+Performance is improved here as there is no process of coping old data from source volume to snapshot 
+and new data is directly written to snasphsot."
+	
+	
+(*****)	 ---> What is snapclone?
+Weak	"Snapclone is independant point in time copy of source volume.
+During snapclone it copies all the data from source volume to snapclone.
+Once snapclone is created, after that any changes made to source volume are not reflected to snapclone.
+Snapclone reserves the space equal to the size of source volume."
+	
+	
+(*****)	 ---> What is Multipath or multipathing software?
+Weak	"In SAN infrastructure, We have multiple physical path between server and storage.
+In SAN infrastructure, usually we have 2 SAN Switches.
+
+2 HBA cards in each server, One HBA connects to SAN Switch1 and other HBA connects to SAN Switch2.
+2 storage controllers with atleast 2 FC ports on each storage controller, one connects to SAN Switch1 
+and other connects to SAN Switch2.
+
+So with this SAN infrastructure, we will have multiple physical paths between server and storage.
+Multiple physical paths are required to avoid single point of failure.
+These physical path may fail due to HBA card failure, FC cable damage, 
+SFP fault, SAN Switch or Storage Controller failure etc."
+Weak	"So Multipathing software can be used to manage these multiple physical paths and to load balance, 
+to redulatency.
+
+Multipathing software hides all physical path and provides a single path to the server.
+If there is any active path fails then it switches to alternate path."
+	https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2008-R2-and-2008/cc725907(v=ws.11)
+	
+======================================================================================================	
+(*****)	 ---> What are load balancing policies or multipathing policies in VMware?
+There are multiple policies such as.
+
+=> Round robin
+=> Fixed path
+
+Most Recently Used"
+	What is the default policy in Vmware???
+	"Round Robin policy uses all available paths and attempts to evenly distribute I/O across all available paths 
+to reduce latency and to load balance."
+	
+	"Fixed policy uses preferred path if it is configured. 
+Otherwise, it uses the first working path which was discovered at system boot time. 
+If the preferred path fails, then it switches to an alternate path. 
+Once the preferred path is restored then it automatically switches back to the preferred path. "
+	
+	"Most Recentrly Used policy uses the first working path which was discovered at system boot time. 
+If this path fails, it switches to an alternative availablable path. 
+If previously failed path is restored then it does not switch back to previous path but continue 
+to use the alternate path."
+	
+======================================================================================================	
+(*****)	 ---> Load balancing policy or multipathing policies in Windows?
+	https://www.youtube.com/watch?v=aqwaaBZLMqE
+Weak	"Round Robin policy
+Fail Over Only policy
+Failback policy
+Round-robin with a subset of paths policy
+Dynamic Least Queue Depth policy
+Weighted Path policy"
+	
+	"Round Robin policy uses all available paths and attempts to evenly distribute I/O across all available paths 
+to reduce latency and to load balance.
+This is the default policy."
+	
+Weak	"Fail Over Only policy uses a primary path.
+If the primary path fails, then it switches to an alternate paths.
+It the primary path is restored then it doesn't switch back to primary path but continue to use alternate path."
+	
+	"Failback policy uses a preferred path.
+If the preferred path fails, then it switches to an alternate path.
+If preferred path is restored then it automatically switches back to the preferred path."
+	
+Weak	"Round-robin with a subset of paths.
+Here we define 2 sets of path, one is primary set and another is standby set. 
+It uses all the paths from primary set, 
+it attempts to evenly distribute I/o across all the paths in primary set to reduce latency and  to load balance, 
+as long as at least one of the paths is available. 
+If no path is available in primary set then it switches to an alternate path of standby set. 
+
+If one or more path of primary set is restored, then it switches back to path of primary set.
+ 
+For example, given 4 paths — A, B, C, and D — A, B, and C are listed as primary paths, and D is standby path. 
+It chooses a path from A, B, and C in round-robin fashion as long as at least one of them is available.
+
+If all three path fails in primary set, then It uses path in standby path. If path A, B, or C is restored, 
+it switches back to available paths in primary set."
+	
+Weak	Dynamic Least Queue Depth policy uses the path which has least number of outstanding requests.
+	
+Weak	"Weighted Path policy assigns weights to each path.
+It uses the path which has the least weight"
+	
+	
+Not Imp	How to install MPIO in Windows?
+Weak	"Install MPIO in windows - Go to Server Manager - Add roles and features - 
+Role-based or featur-based installation - 
+Select Multipath I/O and proceed with installation"
+	
+	
+Not Imp	How to configured MPIO in Windows
+Weak	MPIO configuration in windows - Go to Server Manager - Tools - select MPIO and proceed with configuration
+	Introduction to Windows Multipath IO MPIO - Part 1 - https://www.youtube.com/watch?v=GrX_6Y9deD0
+	Configuring MPIO - https://www.youtube.com/watch?v=aqwaaBZLMqE
+	
+============================================================================================================================
+	
+(*****)	What are types of Storage System? 	https://www.youtube.com/watch?v=71iiAzlF2Rs
+
+1)	Block-based Storage (SAN)
+2)	File-based Storage (NAS)
+3)	Object-Based Storage (OSD)
+4)	Unified Storage"
+
+Let's explore how data deduplication works in different storage technologies, specifically focusing on Block-based Storage (SAN), File-based Storage (NAS), Object-Based Storage (OSD), and Unified Storage.
+
+## 1. Block-based Storage (SAN)
+
+**Storage Area Network (SAN)** uses block-based storage, where data is stored in fixed-size blocks. Deduplication in SAN typically occurs at the block level.
+
+### How It Works:
+- **Chunking**: Data is divided into fixed-size blocks.
+- **Hashing**: Each block is hashed to create a unique identifier (hash value).
+- **Comparison**: The hash values are compared to identify duplicates.
+- **Storage**: Unique blocks are stored, while duplicates are replaced with references to the original block.
+
+### Benefits:
+- **Efficiency**: Reduces storage space by eliminating redundant blocks.
+- **Performance**: Enhances performance by reducing the amount of data to be read/written.
+- **Cost Savings**: Lowers storage costs by optimizing space usage.
+
+### Example:
+In a SAN environment, when multiple virtual machines store similar operating system files, deduplication ensures that only one copy of each block is stored, significantly reducing storage requirements.
+
+## 2. File-based Storage (NAS)
+
+**Network Attached Storage (NAS)** uses file-based storage, where data is stored as files. Deduplication in NAS typically occurs at the file level.
+
+### How It Works:
+- **Chunking**: Files are divided into smaller chunks.
+- **Hashing**: Each chunk is hashed to create a unique identifier.
+- **Comparison**: The hash values are compared to identify duplicates.
+- **Storage**: Unique chunks are stored, while duplicates are replaced with references to the original chunk.
+
+### Benefits:
+- **Efficiency**: Reduces storage space by eliminating redundant file chunks.
+- **Simplified Management**: Easier to manage and access files.
+- **Cost Savings**: Lowers storage costs by optimizing space usage.
+
+### Example:
+In a NAS environment, when multiple users store similar documents or media files, deduplication ensures that only one copy of each chunk is stored, reducing storage space.
+
+## 3. Object-Based Storage (OSD)
+
+**Object Storage Devices (OSD)** store data as objects, which include the data itself, metadata, and a unique identifier. Deduplication in OSD typically occurs at the object level.
+
+### How It Works:
+- **Chunking**: Objects are divided into smaller chunks.
+- **Hashing**: Each chunk is hashed to create a unique identifier.
+- **Comparison**: The hash values are compared to identify duplicates.
+- **Storage**: Unique chunks are stored, while duplicates are replaced with references to the original chunk.
+
+### Benefits:
+- **Scalability**: Highly scalable, suitable for large volumes of unstructured data.
+- **Efficiency**: Reduces storage space by eliminating redundant object chunks.
+- **Cost Savings**: Lowers storage costs by optimizing space usage.
+
+### Example:
+In an OSD environment, when storing large amounts of unstructured data such as images or videos, deduplication ensures that only one copy of each chunk is stored, optimizing storage space.
+
+## 4. Unified Storage
+
+**Unified Storage** combines block, file, and object storage into a single system. Deduplication in unified storage can occur at multiple levels (block, file, and object).
+
+### How It Works:
+- **Chunking**: Data is divided into chunks based on the storage type (block, file, or object).
+- **Hashing**: Each chunk is hashed to create a unique identifier.
+- **Comparison**: The hash values are compared to identify duplicates.
+- **Storage**: Unique chunks are stored, while duplicates are replaced with references to the original chunk.
+
+### Benefits:
+- **Flexibility**: Supports multiple storage types in a single system.
+- **Efficiency**: Reduces storage space by eliminating redundant data across different storage types.
+- **Cost Savings**: Lowers storage costs by optimizing space usage.
+
+### Example:
+In a unified storage environment, deduplication can optimize storage space by eliminating redundant data across block, file, and object storage, providing a comprehensive solution for diverse storage needs.
+
+### Follow-Up Questions
+
+- Are you interested in specific deduplication techniques or algorithms for any of these storage types?
+- Would you like to know about any particular use cases or examples of data deduplication in practice for these storage systems?
+- Do you need information on implementing data deduplication in a specific storage system or software?
+
+	
+============================================================================================================================	
+(*****)	What is Block-based Storage (SAN-based)?
+
+Block based storage is block level storage.
+It is also known as fabric-based storage. It is used in SAN environement.
+In Block storage, we have 2 redundant controllers with atleast FC ports.
+FC ports are connected to 2 different SAN Switches using fibre optic cable.
+It has multiple disk enclosures with multiple disks.
+We can create pools and RAIDGroups using multiple disks and apply RAID level.
+We can create multiple LUNs and allocate to different host.
+Host uses HBA cards to connect to SAN Switches.
+Host uses FC protocol to access Storage LUNs.
+	
+============================================================================================================================	
+(*****)	What is NAS? What is file based storage??
+Very Weak	"NAS is Network Attached Storage. 
+it is also known as file-based storage, file level storage.
+NAS is a dedicated, high-performance file sharing storage.
+NAS is connected to ethernet switches using ethernet cables.
+In NAS we have multi disk with RAID configured.
+In NAS, we can create CIFS and NFS shares and we can export them to Windows  and Linux clients 
+over IP network.
+Windows uses can use CIFS protocol to access CIFS shares.
+Linux user can use NFS protocol to access NFS shares.
+Windows users can map CIFS shares. Linux users can mount NFS shares. 
+Windows and Linux users can use these shares without formating to store files and folders.
+Same shares can be access by multiple users."
+	
+	
+Not Imp	NFS and CIFS creation from Unity storage
+Weak	"Below are the steps.
+Pool is required for NAS server creation
+Create NAS Server
+Create new File System
+Configure protocol (NFS, CIFS and SMB)
+Create shares (NFS, CIFS)
+Configure Access"
+	D:\Personal-Data\Dell Trainings-Imp\Storage\DECS-IE Unity Implementation Engineer - Partners [Stream]-08302022\SOPs
+	
+============================================================================================================================	
+(*****)	What is Object-Based Storage Device (OSD)?
+
+Object based storage is a type of storage.
+In Object based storage, data is stored in the form of objects on a flat address space.
+There is no hierarchy followed for storing objects such as folder withing folder, object in a folder.
+An object within an object is not possible. 
+All objects are stored on a flat address sapce.
+Every Object is identified by a unique identifier called an object ID. 
+That object ID can be used to access objects without knowing the exact storage location of the object.
+Example of objects such as files, documents, pictures, movies, songs etc."
+	CAS: Content Addressable Storage (Archiving type of media)???
+	
+============================================================================================================================	
+(*****)	What is Unified Storage?
+ 
+Unified storage is a combination of block-level, file-level, and object-level storage. 
+In Unified storage, There may be dedicated controllers for handling block I/O, file I/O, and object I/O. "
+	All 3 storage is managed by single user interface
+	
+============================================================================================================================	
+	
+(*****)	What are component of storage system?
+"Basically there are only 2 major component of storage.
+1) Dual Controller (more than one controller for redundancy )
+2) Disk shelf"
+============================================================================================================================	
+	
+(*****)	What is controller? What are prts of controller?
+"Controller is a major part of Storage.
+Controller is a compute system that runs a purpose-built operating system.
+
+Contorller has CPU, Memory, Cache, NVRAM, Batery Backup, Frontend ports, Backend ports, 
+Daul Power Supply, disk enclosures and disks etc"
+	
+============================================================================================================================	
+(*****)	What is the function of controller? What is the task of controller?
+"Controller performs several key functions such as I/O operations, cahce management, Storage management, 
+Pool and RAIDGroup management, RAID protection, 
+Data compression, data deduplication, data encryption, 
+Snapshot, Snapclone, Local replication, remote replication and Storage tiering."
+	
+============================================================================================================================	
+Very Weak	"Cache
+Cache is faster than the spinning disk and it improves performance.
+Cache is used to read and write data.
+When a host sends a write request to storage.
+Storage writes the data to the cache and sends ""write-complete"" acknowledgement to the host.
+Later on when the storage is less loaded or idle, it writes data to the disk.
+When a host sends a read request, if requested data is available in the cache then it is sent from the cache else 
+it retrieves the data from disks, write to cache and then sent to hosts.
+
+It is also used to calculate Parity information.
+If there is a disk failure then cache is also used to reconstruct data.
+It is also used for data compression, deduplication, snapshot, snapclone, local and remote replication."
+	
+	"NVRAM
+NVRAM is a Non Volatile Memory. It is used to store data from cache. 
+If there is power failure then Battery Backup provides temporary power to storage, 
+so that all the data from cache can be trsnferred to NVRAM.
+Data is persistant in NVRAM and it is not lost even when there is no power to storage."
+	
+	"Front End Ports are used to connect to SAN Swithces, host connect to front end port for LUN access.
+
+Banke End Ports are used to connect to the disk shelves via dual link control cards. 
+
+Disk shelf have hard disk drives (SAS, NL-SAS and SSD disks), LLC (Link control cards to connect to Controllers) and dual power supplies."
+	
+============================================================================================================================	
+(*****)	What is read hit?
+When a host sends a read request to storage and if requested data is available in the cache 
+then it is sent from the cache to the host. This is known as a Read hit. 
+	
+============================================================================================================================	
+(*****)	What is read miss?
+
+	"When a host sends a read request to storage, if requested data is not available in the cache, 
+then data is retrieved from the disks, wrtiten to the cache and sent to the host. 
+This is known as a Read miss."
+	
+============================================================================================================================	
+(*****)	What is Write-Back Operation?
+
+When a host sends a write request to storage.
+Storage writes the data to the cache and sends ""write-complete"" acknowledgement to the host.
+Later on when the storage is less loaded or idle, it writes data from cahce to the disk.
+	
+============================================================================================================================	
+(*****)	What is Write-Through Operation?
+	"When a host sends a write request to storage.
+Storage writes the data to the cache and immediately writes the data to disks and 
+sends ""write-complete"" acknowledgement to the host.
+
+So as the data arrives to storage, it passes through cache and written to disks.
+The risk of data loss is low"
+	
+============================================================================================================================	
+(*****)	What are parts of Disk shelf?
+	"Disk shelf have hard disk drives such as SSD, SAS, NL-SAS.
+Link control cards to connect to Controllers and dual power supplies."
+	
+============================================================================================================================	
+(*****)	What is the difference between san and nas?
+Weak	"SAN is Storage Area Network and NAS is Network Attached Storage
+SAN is block level storage and NAS is file level storage 
+SAN is Fabric based and NAS is an Ethernet based
+In SAN, SAN Switches, HBA cards and fibre optic cables are used,
+In NAS, network interface cards, ethernet switchs and CAT5, CAT6 cables are used.
+
+In SAN, LUNs are created and allocated to hosts, In NAS,  shares are create and exported to clients.
+In SAN, FC protocol to access storage LUNs, In NAS, CIFS and NFS protocols are used to access shares."
+	
+	What is SMB protocol, Server Message Block protocol???
+	
+	
+(*****)	 ---> Designing storage - requirement is 10000 IOPS per TB for my Tier1, 50TB storage.
+(*****)	 ---> Storage sizing
+	https://www.dell.com/en-in/dt/video-collateral/demos/microsites/mediaplayer-video/2017/midrange-sizer-tool-video.htm
+Weak	"To get 10,000 IOPS and 50TB storage capacity we have to use 3 formulas.
+
+1st Formula is to find total RAIDGroup IOPS.
+2nd formula is to find total no of disk required to get total RAIDGroup IOPS.
+3rd formula is to find total usable capacity of RAIDGroup
+
+Required IOPS is 10000, but the total RAIDGroup IOPS will be more than that due to 
+% of read, % of write and RAID penalty.
+
+Required IOPS 
+= Total RAIDGroup IOPS * Write percentage/Write penalty + Total RAIDGroup IOPS * Read percentage
+
+With this formula we get ""Total RAIDGroup IOPS"""
+	"Now we can find total no of disks required to get total RAIDGroup IOPS.
+
+Required no of disks = Total RAIDGroup IOPS/IOPS of a single disk + no of parity disk + no of spare disk
+
+Now we can find total usable capacity of RAIDGroup
+
+Total usable capacity of RAIDGroup 
+= (Total no of disks - no of parity disks - no of spare disk) * size of the disk"
+	
+	"Required IOPS = Total RAIDGroup IOPS * Write percentage/Write penalty + Total RAIDGroup IOPS * Read percentage
+
+10000 = (A x 50%)/4 + (A x 50%)
+10000 = 0.5A/4 + 0.5A
+4 x 10000 = 0.5A + 0.5A*4
+40000 = 0.5A + 2A          40000 = 2.5A          40000/2.5 = A          400000/25 = A          16000 = A"
+	
+	"Required no of disks = Total RAIDGroup IOPS/IOPS of a single disk + parity disk + spare disk
+
+Required no of disks = 16000/200 + Parity disks + Spare disks
+Required no of disks = 92 + 10 + 4
+Required no of disks = 106"
+	
+	"Total usable capacity of RAIDGroup = (Total no of disks - parity disks - spare disk) * size of disk
+
+Total usable capacity of RAIDGroup = (106 - 10 - 4) * 550
+Total usable capacity of RAIDGroup = 92 * 550
+Total usable capacity of RAIDGroup = 50.6 TB"
+	
+	"If we take 100 SAS 600GB 15K RPM disks.
+And we configure 10RaidGroups with 10 disks in each RG and Apply RAID5.
+So we will have total 10 RGs.
+From each RG, 1 disk space will be used for storing parity information.
+So we wil get 9 disk space in each RG.
+So we will get total 90 disks space.
+Total space will be 550 GB x 90 = 49500 GB = 49.5 TB"
+
+============================================================================================================================	
+	
+(*****)	Storage sizing
+
+"Before working on storage sizing, 
+We need to understand customer requirement with respest to total required IOPS, total usable capacity, 
+latency, bandwidth and throughput. 
+
+Then we can work on storage sizing part.
+Which storage to be used, 
+What should be the CPU, Memory and cache size of storage
+How many disk enclosures should be there.
+How many total disks we should we have including parity and spare disk.
+What type of disk, size and speed,
+What storage features are required (data compression, data deduplication, data encryption, 
+snapshot, snapclone, local replication, remote replication,  storage tiering etc).
+
+No of front end ports"
+	https://midrangesizer.dell.com/
+	https://www.youtube.com/watch?v=E6o0LoTLJQk
+	Refer course "Storage Performance Fundamentals
+	
+	
+	Sizing and Performance 
+	"https://infohub.delltechnologies.com/l/dell-emc-ready-bundle-for-sap-with-unity-storage-5/sizing-and-performance-2
+
+https://infohub.delltechnologies.com/"
+	
+============================================================================================================================
+(*****)	What is iSCSI?     (Internet Small Computer Systems Interface)
+Very Weak	"iSCSI is a SAN protocol which runs over existing ethernet network.
+By using ISCSI, we can transfer block level data over existing ethernet network. 
+In iSCSI, we usesIQN and IP addresses. (IQN = iSCSI Qualified Name) 
+In iSCSI, SCSI data is encapsulated into IP packet and then transfered over existing ethernet network using TCP/IP protocol.
+iSCSI implementation is easy and inexpensive as we do not need invest into SAN Switches, FC HBA cards, 
+Fibre Optic cables etc.
+
+There are 3 types of iSCSI initiators we can use
+Software iSCSI with Standard Network Interface Card
+Software iSCSI with TOE Network Interface Card
+Hardware iSCIS (It is also known as iSCSI HBA)"
+	
+Weak	"In Software iSCSI with Standard Network Interface Card, 
+There will additional load on Server's CPU, as encapsulation and Storage TCP prcossing 
+will be done by Server's CPU
+
+In Software iSCSI with TOE Network Interface Card, 
+There will be less load on Server's CPU as encapsulation is done by Server's CPU 
+and Storage TCP prcossing is done by TOE Network Interface Card.
+
+In Hardware iSCSI, There will no additional load on Server's CPU, 
+as both encapsulation and Storage TCP prcossing will be done by Hardware iSCSI (iSCSI HBA)."
+	
+Weak	"Each server will have 2 iSCSI initiators and 2 IP addresses.
+One will connect to ethernet switch1 and other connects to ethernet switch2.
+From storage side, we have 2 storage controllers with 2 iSCSI target and 2 IP addresses for each storage controller.
+One will connect to ethernet switch1 and other connects to ethernet switch2.
+In iSCSI servers, we need to add iSCSI Target IP addresess to discover and access storage LUN
+To map LUNs to iSCSI servers, we have to create storage group and add server IQN and target LUNs.
+Now from server side we can discover LUN in disk management."
+	
+	"TOE NIC has TOE. TOE is TCP Offload Engine.
+TOE improves performance as it offloads Storage TCP processing from server's CPU.
+
+Customer may be interested to implement SAN over IP or IP SAN, as they may want to use 
+exiting IP infrastructure, may be customer does not want to invest in SAN Switches, 
+HBA cards, Fibre Optic cables etc, May be customer having budget issue. 
+There are 2 protocols for IP SAN (iSCSI and FCIP)
+
+The S4100-ON series are high-performance, multifunction, 1/10/25/40/50/100 GbE and 8/16/32G FC "
+	
+============================================================================================================================
+(*****)	What are key components for iSCSI communication?
+
+"Key components for iSCSI communication are 
+iSCSI initiators
+iSCSI targets
+Network Interface Card, Ethernet cable and Ethernet switch"
+	
+ReadOnce	"Native iSCSI Connectivity
+In Native iSCSI connectivity, iSCSI initiators connects directly to the iSCSI targets or connects through Ethernet switches. 
+FC components are not required for native iSCSI connectivity. "
+	
+ReadOnce	"Bridged iSCSI connectivity
+In Bridged iSCSI connectivity, iSCSI initiators connects to Ethernet switches.
+FC Storage isconnected to FC SAN
+iSCSI gateway connects Ethernet switch with FC SAN.
+So it provides bridging functionality."
+	
+Need to re-check on this	"Bridge iSCSI connectivity is used when we do not have ethernet ports for iSCSI in our storage system.
+Bridge iSCSI is a multiprotocol router or it is also known iSCSI gateway. 
+It has both Fibre Channel ports and Ethernet iSCSI ports.
+On FC ports FC storage is connected and on Ethernet port either compute system are connected directly or standard ethernet switch is connected.
+iSCSI gateway encapsulates FC frames into IP packets and forwards to ethernet ports.
+It also decapsulates FC frame from IP Packet then forwards to the native FC interfaces. 
+In iSCSI initiator, gateway’s IP address is configured as the target destination. 
+On the storage system facing side, the gateway is configured as an FC initiator."
+	
+	
+Less Imp	Procedure to add iSCSI target ip address in windows server
+Weak	"Go to iSCSI initiator
+Go to Discovery tab
+Add iSCSI target IP address (Default port no is 3260)
+Add all iSCSI target IP addresses.
+
+Go to Target tab
+Select iqn of target storage
+Click on ""Connect""
+Check on ""Enable multi-path""
+
+https://www.youtube.com/watch?v=8oUrDNLgJug
+https://www.youtube.com/watch?v=3q7MgDmHis4                https://www.youtube.com/watch?v=aqwaaBZLMqE"
+	
+	
+Less Imp	Procedure to add iSCSI target ip address in Vmware
+	https://www.youtube.com/watch?v=A7pGqkBFEqs
+Weak	"Go to ESXi hsot
+Go to iSCSI Software Adapter and add target iSCSI IP Address and iQN of storage.
+Rescan Storage to detect storage LUNs.
+Go to Datastores under ""Storage"" and verify that datastores are visible."
+	
+	"Go to ESXi hsot
+Storage Adapter under ""Storage""
+iSCSI Software Adapter
+Targets tab
+Dynamic Discovery or Static Discovery
+Add iSCSI server IP Address and iQN
+
+Rescan Storage for storage devices
+Go paths tab and verify that paths are visible
+Go to Devices tab and verify devices are visible
+
+Go to Datastores under ""Storage"" and verify that datastores are visible."
+	
+============================================================================================================================	
+(*****)	What is Fibre Channel protocol?
+
+Fibre Channel is a high-speed block data transport protocol over fiber optic cables.
+Fibre Channel is a block level protocol, it supports block level I/O.
+Fibre Channel speed can be upto 128 Gb/s. 
+Fibre Channel protocol is used in SAN environment."
+	
+============================================================================================================================	
+(*****)	What is SAN?
+	"SAN is storage area network.
+In SAN environment, Fibre Channel protocol is used. 
+In SAN environment, Each server will have 2 HBA cards.
+One HBA connects to SAN Switch1 and another connects to SAN Switch2 using Fibre Optic cables.
+Storage will have 2 controllers.
+Each controller will have atleast to FC front end ports.
+One FC port connects to SAN Switch1 and another FC port will connect to SAN Switch2 using Fibre Optic Cables.
+In SAN Switches, We can configure zoning to group host wwpn and storage wwpn,
+So that host can communicate with storage using FC protocol.
+In Storage, We can create Pool and RaidGroup, 
+We can apply RAID levels. 
+We can create and alloate LUNs to hosts.
+Host can discover and access LUNs using fibre Channel protocol."
+	
+============================================================================================================================
+(*****)	Fibre Channel Topologies
+
+There are 3 Fibre Channle topologies.
+
+DAS topology (Point to Point topology)
+FC-AL (Fibre Channel Arbitrated Loop topology)
+FC-SW (Fibre Channel Switched topology)"
+	
+	"DAS topology (Point to Point topology)
+Host directly connects to storage using HBA and Fibre Optic cable."
+	
+	"FC-AL (Fibre Channel Arbitrated Loop topology)
+Hub is used to connect hosts and storage.
+Hub is a shared bandwidth, one communication at a time.
+No zoning supported in Hub so it is not secure.
+Adding or removing a device from loop, breaks the loop."
+	
+	"FC-SW (Fibre Channel Switched topology)
+Switch is used to connect hosts and storage.
+There is no bandwidth sharing, dedicated bandwidth per port.
+Zoning is supported in Switch, so it is secure.
+Adding or removing a device from fabric, does not impact fabric."
+	
+	"Four-servers connection to a single storage port is a fan-out
+One server connection to storage ports on multiple storage is fan-in"
+	
+============================================================================================================================	
+(*****)	FC SAN Topologies
+	"Single Switch Fabric Topology
+Full Mesh Topology
+Partial Mesh Topology"
+	
+	"Single Switch Fabric Topology
+Only single switch
+Host and storage connects to same single switch.
+No ISLs.
+
+Full Mesh Topology
+All the switches are connected to each other (Each switch is connected to every other switch)
+Host and storage can be connected to any switch.
+Maximum of one ISL is required for host to reach to storage.
+
+
+Partial Mesh Topology
+Not All the switches are connected to each other.
+Several ISLs may be required for host to reach to storage."
+	
+Start from here	
+Interview Question	Core-Edge Fabric - Core Edge Technology (Core to Edge)
+	"In Core-Edge Topology, we have 2 tiers, Edge tier and Core tier
+
+The edge tier is composed of departmental switches which are not connected to each other.
+
+The core tier is composed of enterprise director switches which are not connected to each other.
+
+The edge tier switches are connected to core tier switches through ISLs (InterSwitch Linked).
+
+Hosts are connected to Edge tier Switches. Storages are connected to Core tier Switches.
+
+Hosts which require high performance can directly connect to Core tier Switches to avoid ISL delays.
+
+The core-edge topology increases connectivity within the FC SAN while conserving the overall port utilization."
+	
+	"Benefits are:
+Consolidation of Fabric.
+Any host can access any storage.
+Core Edge Fabric Nomenclature: n1e*n2c*n3i
+Where n1e= number of edge switches, n2c= number of core switches, n3i=number of ISL"
+	
+
+============================================================================================================================
+	
+(*****)	What is Link Aggregation? What is port channel? LACP?
+
+When we have multiple physical link between 2 Ethernet Switches.
+We can bundle multiple physical links into a single logical link.
+The advantage of link aggregation is higher bandwidth and throughput, 
+to create redundancy, to load balance and to reduce latency.
+
+If any single link fails, then data can be transferred from other remaining link. 
+Data is equally transferred from each link."
+	
+============================================================================================================================
+	
+(*****)	What is trunking?
+	"When we have multiple physical ISL links between 2 SAN Switches.
+We can bundle multiple physical ISL links into a single logical link that is known as trunking.
+The advantage of trunking is higher bandwidth, higher throughput, higher performance, low latency, 
+load balancing and redundnacy.
+
+If any single link fails, then data can be transferred from other remaining link. 
+Data is equally transferred from each link."
+	
+============================================================================================================================	
+(*****)	Types of SAN Switches?
+	"There are 3 types of switches
+DS (Departmental Switch)
+ED (Enterprise Director Switch)
+MP (Multiprotocol Switch)"
+	
+	"Departmental Switche is a small switch with less ports (48 ports), 
+Some components are redundant and hot-swappable.
+
+Enterprise Director Switch is a big switch with more ports, 
+all components are redundant and hot-swappable.
+
+Multiprotocol switch supports multiple protocols (FC, FCIP, FCoE, iSCSI), 
+it has blades and these blades have FC port and 10Gig ethernet ports."
+	
+============================================================================================================================	
+(*****)	What are FC SAN componenets?
+	The key FC SAN components are HBA cards , Fibre Optic cables, SFP, SAN switches, and Storage system with FC front-end ports.
+	
+============================================================================================================================	
+(*****)	Types of optical cables?
+	"There are two types of optical cables: Multimode and Single-mode 
+
+Multimode fibre cable is used for short distance (Less than 400 Meters).
+In Multimode fiber optic cable, multiple rays of light flows simultaneously at different angles. 
+There are chances of collision of these rays of light.         
+Because of this collision signal strength and distance is reduced
+
+Single-mode fibre cable is used for long-distance (More than 400 Meters)
+In Single-mode fiber optic cable, single ray of light flows.
+So there is no question of collision, so distance is increased."
+	
+	"Multimode fiber (MMF) cable carries multiple beams of light that is projected 
+at different angles simultaneously onto the core of the cable. 
+In an MMF transmission, multiple light beams traveling inside the cable tend 
+to disperse and collide. 
+This collision weakens the signal strength after it travels a certain distance 
+– a process that is known as modal dispersion.
+
+Single-mode fiber (SMF) carries a single ray of light that is projected 
+at the center of the core. 
+The small core and the single light wave help to limit modal dispersion. 
+Single-mode provides minimum signal attenuation over maximum distance (up to 10 km). 
+A single-mode cable is used for long-distance cable runs, 
+and the distance usually depends on the power of the laser at the transmitter 
+and the sensitivity of the receiver."
+	
+============================================================================================================================	
+(*****)	FC SAN Device Port Types?
+	"N_Port 
+N_Port is also known as the node port. 
+All HBA ports and all storage FC front ports are N_Port.
+N_Ports are connected to a SAN Switch port.
+
+F_Port 
+F_Port is also known as a fabric port.
+F_port is a port where N_Port is connected."
+	
+E_Port :: E_Port is also known as expansion port. 
+When we wnat to connect 2 different switches, then we should configure switch port as E_Port.
+E_Port of SAN Switch1 connects to the E_Port of SAN Switch2.
+This connection is also known as ISL.
+
+G_Port : G_Port is also known as Generic port or Universal port.
+Empty ports, unused ports of SAN Switches are G_Port.
+G_Port can become an E_Port or an F_Port."
+	
+============================================================================================================================	
+(*****)	Fibre Channel Protocol Stack?
+	"FC-4 	Mapping interface
+FC-3 	Common services
+FC-2 	Routing, flow control 
+FC-1 	Encode/decode 
+FC-0 	Physical layer (cables, connector)"
+	
+============================================================================================================================	
+(*****)	What is Storage Virtualization?
+	"In storage virtualization, there is a Virtualization appliance.
+Compute systems and the storage systems are connected are connected to Virtualization Appliance. 
+
+Virtualization appliance creates a storage pool by aggregating LUNs from the storage systems.
+Virtual volumes are created from the storage pool and assigned to the compute systems.
+
+The virtualization layer maps the virtual volumes to the LUNs on the individual storage systems.
+
+Benefits: 
+− Online expansion of virtual volumes. 
+− Non-disruptive data migration. "
+============================================================================================================================	
+	
+(*****)	How many ways to get wwpn for a HBA?
+	
+	
+============================================================================================================================	
+(*****)	What is the composition of FC frame?
+Weak	"The composition of a Fibre Channel Frame include 
+SOF – 4 bytes
+Frame header – 24 bytes 
+Data field - up to 2,112 bytes of actual data. 
+CRC – 4 bytes - It verifies data integrity by checking whether the content of the frames was received correctly. 
+EOF – 4 bytes 
+Typically, the minimum frame-length of a FC frame is 36 bytes and the maximum frame-length of a Fibre Channel frame is 2148 bytes."
+	
+============================================================================================================================	
+(*****)	What is FCoE?
+Explain in your own words	"FCoE is Fibre Channel over Ethernet protocol
+
+In FCoE, FC frame is encapsulated into Ethernet frame and FC frame is decapsulated from ethernet frame.
+To implement FCoE, we need CNA card in servers, FCoE enabled switch and FC Storage
+FCoE switch is also known as Converged Network Switch
+FCoE switch will have FC ports and 10Gig ethernet ports.
+On FC ports, FC storage will be connected.
+On Ethernet ports, Server will be connected using CNA cards.
+On FCoE switch zoning is configured."
+	
+	"FCoE is used to transport Fibre Channel traffic and Ethernet traffic over the same single adapter 
+and existing ethernet network. FCoE converges FC protocol and Ethernet protocols. By implementing FCoE, we can reduce no of adapters at host, no of cables, no of switches."
+	
+============================================================================================================================	
+(*****)	CNA card?
+Weak	"CNA card is converged Network Adapter
+CNA card supports Fibre Channel traffic and Ethernet traffic over the same ethernet network. 
+It is a 10 Gig card
+It is installed in Server's PCI slot
+It is connected to FCoE enabled switch.
+We can create vNIC and vHBA
+vNIC will have mac address and vHBA will have wwpn
+This wwpn is used to create zoning on FCoE enabled switch"
+	
+	Dual stack switch (Running FCP protocol and ethernet protocol)  https://www.youtube.com/watch?v=TAj9whKayA8
+	DCB: Datacenter Center Bridging)
+	"HP StorageWorks 2408 FCoE Converged Network Switch
+It has total 32 ports."
+	
+============================================================================================================================	
+(*****)	What is NVM?
+	"NVM is used in SSD and M.2 drives.
+An NVM device is faster than spinning disk and provides low data transfer latency.
+
+NVM Express (NVMe) is a protocol.
+It is computer-to-disk connectivity protocol.
+
+An NVMe device connects directly to an embedded storage controller 
+on the motherboard instead of a PCIe card. 
+The embedded controller allows the NVMe device to achieve maximum performance.
+
+Commonly known as flash storage."
+	
+	"NVM is used in SSD and M.2 drives.
+An NVM device is faster than spinning disk.
+An NVMe device connects directly to an embedded storage controller 
+on the motherboard instead of a PCIe card. 
+NVM Express (NVMe) is a protocol.
+It is computer-to-disk connectivity protocol.
+
+Commonly known as flash storage."
+============================================================================================================================	
+(*****)	What is NVMe?
+	
+============================================================================================================================
+	
+(*****)	NVMe Over Fabrics
+	Native NVMe cannot connect to NVM storage devices outside of the server. NVMe Over Fabrics (NVMe-oF) was introduced to enable shared NVMe storage device connectivity. NVMe Over Fabrics enables the NVMe protocol to be transported over FC or other fabrics. NVMe-oF enables servers to take full advantage of high performance NVM flash storage systems distributed across a SAN fabric.
+============================================================================================================================	
+		
+(*****)	SmartFabric Storage Software?
+???	
+	
+	
+(*****)	FC Addressing in Switched Fabric?
+	"FC address is assigned to node ports during fabric login. 
+It is used for communication between nodes in a FC SAN 
+FC address size is 24 bits. 
+
+FC address contains, Domain ID, Area ID and Port ID.
+
+1: A domain ID is a unique number that is assigned to each switch in the fabric. 
+2: The area ID is used to identify a group of switch ports.
+3: The port ID identifies the port within the group."
+
+============================================================================================================================	
+
+(*****)	 ---> What is disaster recovery planning?
+(*****)	 ---> What is design prinicipals behind buiding disaster recovery, what requirement of RPO and RTO?
+Weak	"Tier 1: 99.999% availability (5 minutes of downtime per year)
+Tier 2: 99.9% availability (8.8 hours average downtime per year, 13.1 hours maximum)
+Tier 3: 99% availability (3.7 days of downtime per year)"
+Weak	"During Disaster Recovery planning, We list down all applications.
+We group them into tiers (Tier1, Tier2, Tier3)
+Tier 1 applications are those applications which should be restored as soon as possible. 
+Tier 2 applications are those applications which are important but not as urgent, and can be put on hold for few hours. 
+Tier 3 applicationss are less important and can wait for a few days if necessary. 
+Some applications will become more or less important, thus changing tiers.
+For each application, we conclude, How much data loss and downtime is acceptable.
+Based on dataloss and downtime we decide RPO and RTO for each application.
+And based on RPO and RTO, we configure backup and replication frequency."
+	
+============================================================================================================================	
+(*****)	 ---> How to decide network bandwidth to meet RTO, RPO and disaster recovery?
+	https://www.dell.com/community/RecoverPoint/Bandwidth-requirement-calculation/td-p/6787415
+Weak	"To find out required network bandwidth to support RPO, RTO and disaster recovery, 
+we need to find out how much data will change for each luns over a given period of time.
+After the initial sync only the changed blocks will be replicated to DR site.
+So we will find out total data change for all the LUNS during the busiest hour, which are configured 
+in replication and convert that to Mb/s.
+
+So for an example.
+Lun 1, data change is 1GB for an hour
+Lun 2, data changes id 2GB for an hour
+total data changed = 3 GB
+Convert to MB  --->  3GB * 1024 = 3072MB
+Convert the MB to Mb ---> 3072*8 = 24576Mb
+24576Mb is the amount of data changed in a hour on our luns, 
+we need to convert this to the average per second ---> 
+24576 / (60*60) = 24576 / 3600 = 6.83 Mb/s"
+	
+============================================================================================================================	
+(*****)	Backup sizing
+
+How many Tape drives we will have, how many tapes for daily, weekly, monthly and yearly etc. Which backup software we will use?
+Weak	"What is the total size of the bakcup?
+What is the size of SQL database backup, Oracle database backup?
+What is the size of Filesystem backup etc.
+What is the backup windows
+What is the type of backup (Daily Full, Weekly full, SAN backup, LAN backup)
+How many copies of backup?
+What is the RPO and RTO for each backup.
+What is the backup retention period.
+Based on the above information we can decide no of tapes, tape drives and no of libraries required 
+to achieve backup within RPO and RTO."
+	
+Weak	"SQL database backup is 2TB
+Oracle database backup is 5TB
+Filesystem backup is 1TB
+Total 8 TB to be backed up
+Backup windows is 8 hours (from 11PM to 7AM)
+Daily full
+2 copies (One onsite and one offsite)
+Frequency of backup
+Retention of backup"
+	
+Weak	"Backup sizing done for Bank of Barod, Godrej, VFS, Severn Trent Water
+Backup window from 10PM to 8AM
+Daily full backup for Oracle database backup, SQL database backup
+Weekly full and daily incremental backup for Windows, Linux, Solaris and Virtual machines.
+Daily retention is 7 days and weekly retention is 28 days and monthly 12 months, yearly 10 years.
+Database backup is the priority to complete backup first.
+2 copies of backup, one onsite and one offsite."
+	
+=====================================================================================================	
+(*****)	VMware sizing
+
+	
+=====================================================================================================	
+(*****)	What is FCIP?
+Weak	https://www.youtube.com/watch?v=21tsUeJPMsc
+Weak	"FCIP is for Fibre Channel over IP
+FCIP is used to connect 2 different FC SAN, located in 2 different geographical locations over WAN distances.
+FCIP is a tunneling protocol that encapsulates FC frames into IP packets and sends over WAN distances.
+It also decapsulates FC frames from IP packets.
+
+If the the distance between 2 different FC SAN is more than 200KM, then 
+we can not use Fibre optic cables to connect them.
+In that case we can use FCIP protocol to connect them.
+
+FCIP is used to replicate data from primary storage to remote storage to support business continuity and disaster recovery."
+	
+Weak	"In FCIP implantation, A special multiprotocol switch is used at primary site and DR site.
+Multiprotocol switch is also known as an FCIP gateway.
+Multiprotocol switch contains both FC ports and Ethernet ports. 
+FC ports is configured as E_Port and is connected to an FC SAN switch at both the sites.
+Ethernet port is connected to router/Firewall at both the sites.
+Both the sites are connect via WAN link.
+Primary storage send FC frame to MP switch,
+MP switch encapsulats FC frames into IP packets. 
+IP packets are forwarded to router and firewall via Ethernet port. router and firewall send it to DR site. DR site Rputer and firewall forwards to MP switch. MP switch decapsulates, FC frames from IP packet and forwards it to remote storage using FC port."
+	
+=====================================================================================================	
+(*****)	Network architecture for NetApp SolidFire
+Refere Core to Edge or talk to some Network Engineer	"2 Spine switches, 
+2 leaf switches for servers connectivity, 
+2 leaf switches for SolidFire connectivity. 
+Each leaf switch will connect to both spine switches. 
+Full Mesh connectivity. 
+Both Spine will connet to each other???
+LACP protocol is used here.
+Link Aggregation Control Protocol
+Load balancing, failure and double speed"
+	Spine and Leaf network architecture (https://www.youtube.com/watch?v=xjc7WLBb-nI)
+	
+	
+(*****)	Emulex - Emulex HBA Manager
+???	
+	
+	
+(*****)	Qlogic HBA card - SANsurfer
+
+	
+=====================================================================================================
+(*****)	What is Scale-UP and Scale-out architecture?
+	"Scale-up means adding capacity to existing controllers.
+Scale-out means adding performance and capacity.
+Scale-up and scale-out architecture allows you to start small and grow as the business demand"
+	"2 Types of implementation (Scale-up and Scale-out architecture).
+	Storage system have 2 major components (Controllers and Disk shelf). 
+	Controllers have front end ports, Cache, back end ports and 
+	Storage have disk shelf (having multiple disks). 
+	In scale-up, storage and controllers can be scaled-up interdependently or separately.
+	Initially we can start with 2 controllers and 1 disk shelf, 
+	later we can add more disk shelves (Scale-up). 
+	Once controller's supported no of disk shelves are exhausted, 
+	then we can add more controllers (scale-up) 
+	and then we can add more disk shelves to new controllers. 
+	Adding controller will give us more processing power, more cache, more memory 
+	and more front end, back end ports and IOPS. 
+	Adding disks will give more capacity, IOPS, 
+	so in scale-up, controllers and storage can be scaled-up separately.
+
+	In scale-out solution we are using node based architecture in a cluster. 
+	Node, contains controller and internal storage (disks). 
+	We can add new node to cluster (scale-out) and we get additional controller and stroage (disks). 
+	With the new node we add controller and storage together."
+	
+=====================================================================================================	
+(*****)	What is Storage Provisioning?
+	Storage Provisioning is the process of assigning storage resources to compute systems.
+	Two way of storage provisioning
+=====================================================================================================	
+	
+(*****)	What is Thin-provisioning
+Weak	"Thin provisioning is the storage efficiency feature.
+In Thin provisioning, Over-provisioning is allowed.
+We can create and allocate multiple LUNs 
+Total size of all the LUN can cross total physical storage capacity.
+
+When we create and allocate a thin LUN, initially no physical storage is allocated to LUN.
+Host can see full capacity of the LUN and assumes that it has full capacity available.
+As the host writes data to the LUN, physical storage is allocated to the LUN.
+So the allocation is as per hots demand.
+Unused capacity of the LUN will be with the storage.
+
+In thin provisioning, we have to monitore capacity utilization as it should not reach to 100%."
+	
+=====================================================================================================	
+(*****)	What is Thick-provisioning
+
+In Thik provisioning, Over-provisioning is not allowed.
+Allocating more than the physical storage capacity is not allowed.
+We can create and allocate multiple LUNs 
+Total size of all the LUNs can not cross total physical storage capacity.
+
+When we create and allocate a thick LUN, full physical storage is allocated to LUN.
+For Example
+If we have a Pool of 500GB then total LUN size can not cross 500GB.
+we can create 5 LUNs f 100GB each or 2 LUNs of 250GB each but at point of time, 
+we can not cross limit of 500GB."
+	
+=====================================================================================================	
+
+(*****)	What is RAID?
+	"Redundant Array of Independent Disks
+RAID is a technique that combines multiple disk drives into a RAID Group/RAID set. 
+RAID Group is a logical group of one or more disk drives that we eventually want to slice into LUNs.
+RAID provides data protection, improved performance or both.
+RAID uses mirroring or parity technique for data protection against disk failure. 
+And striping technique for improved performance.
+
+There are 2 types of RAID, Hardware RAID and Software RAID.
+Hardware RAID is implemented by using a specialized hardware controller.
+Software RAID is built into Operating System and it is implemented at the operating-system level."
+	
+=====================================================================================================	
+(*****)	What is striping?
+	Striping is a technique of spreading data across multiple drives simaltaneously.
+	
+	"Striping is a technique of spreading data across multiple drives simaltaneously. 
+All the read/write heads of all the drives work simultaneously, 
+allowing more data to be processed in a shorter time. 
+This approach increases the performance, compared to reading and writing from a single disk. 
+The set of aligned strips that spans across all the disks within the RAID set is called a stripe. 
+The figure shows representations of a striped RAID set. 
+Strip size (also called stripe depth) describes the number of blocks in a strip 
+(represented as “A1, A2, A3, and A4”). 
+All strips in a stripe have the same number of blocks. 
+Having a smaller strip size means that the data is broken into smaller pieces 
+while it is spread across the disks. 
+Stripe size (represented as A) is a multiple of strip size by the number of data disks 
+in the RAID set. 
+
+For example: in a four-disk striped RAID set with a strip size of 64 KB, 
+the stripe size is 256 KB (64 KB x 4).   
+Striped RAID does not provide any data protection unless parity or mirroring is used."
+=====================================================================================================	
+	
+(*****)	What is Mirroring?
+	"Mirroring is a technique whereby the same data is stored on two or more disks 
+resulting in multiple copies of the data. 
+If one disk drive failure occurs, the data remains intact on the surviving disk drive. 
+The controller continues to service the data requests from the surviving disk of a mirrored pair. 
+When the failed disk is replaced with a new disk, 
+the controller copies the data from the surviving disk of the mirrored pair. 
+Mirroring involves duplication of data – the amount of storage capacity that is needed is 
+twice the amount of data being stored. 
+Mirroring is considered expensive and is preferred for mission-critical applications 
+that cannot afford the risk of any data loss.
+Mirroring improves read performance because read requests can be serviced by both disks. 
+However, write performance is slightly lower than a single disk because each write request 
+manifests as two writes on the disk drives."
+	
+=====================================================================================================	
+	
+(*****)	 ---> What is latency?
+	"Latency is also known as delay. 
+Latency is the time it takes for data to transfer from source to destination .
+The lower the latency, the higher the performance.
+Letancy is measured in miliseconds."
+	
+=====================================================================================================	
+(*****)	What is Response time?
+	"Response time is the time it takes for data to transfer from source to destination 
+and get the acknowledgment from desntination for the successful delivery of data.
+When a server sends a write request to storage, storage writes the data to cache 
+and sends ""write-complete"" acknowledgement back to the server.
+The time taken between server request and response from stroage is known as response time."
+	
+=====================================================================================================	
+(*****)	What is Bandwidth?
+	"Bandwidth is the maximum volume of data that can be transferred through a link. 
+The more the bandwidth the better the performance.
+Bandwidth can be measured in Kbps, Mbps."
+	
+=====================================================================================================	
+(*****)	What is Throughput?
+	"Throughput is the actual volume of data that is transferred through a link.
+Throughput can be measured in IOPS or Mbps?"
+	
+=====================================================================================================	
+(*****)	What is QoS?
+	"QoS is Quality of Service.
+Quality of Service is a feature that limits I/O between hosts to storage resources.
+QoS is used to gurantee the required bandwidth to storage traffic
+We can create QoS policy.
+In that policy we can specify minimum, maximum and burst limits by setting throughput in IOPS or bandwidth in KBPS or MBPS 
+or combination of both types of limits.
+If both thresholds are set, the system limits traffic according to the threshold that is reached first.
+QoS policy can be shared and not shared"
+	
+=====================================================================================================	
+(*****)	 RAID 0
+	"Raid 0 is just striping only.
+We need two or more disks.
+It does not protect data against disk failure. 
+We get full capacity. We do not lose any space here.
+It is not recommended for production environement, only for test environement where data loss is accepted. 
+For example 
+If we have 5 disks of 500GB each, then we get 2500GB usable space"
+	https://www.youtube.com/watch?v=-6sA9nHlZDc
+	
+=====================================================================================================	
+(*****)	 RAID 1
+	"Raid 1 is just mirroring only.
+We need two disks.
+It does protect data against a single disk failure. 
+We get 50% of total capacity and we lose 50% of total capacity.
+It is recommended for production environement. 
+For example 
+If we have 2 disks of 500GB each, then we get 500GB usable space."
+	
+=====================================================================================================	
+(*****)	 RAID 5
+	"Raid 5 is sptriping with distributed parity.
+We need 3 disks.
+It does protect data against a single disk failure. 
+We get n-1 capacity. We lose 1 disk capacity. 
+It is recommended for production environement. 
+For example 
+If we have 3 disks of 500GB each, then we get 1000GB usable space."
+	
+RAID 5 writes perform better than RAID 6. 
+RAID 5 is best for large sequential I/O and Random I/O, 
+sequential I/O, such as streaming media, lots of audio and video which sequential in nature or nightly backup which is also sequential in nature.
+	
+=====================================================================================================	
+(*****)	 RAID 6
+	"Raid 6 is sptriping with dual distributed parity.
+We need 4 disks.
+It does protect data against 2 disk failure. 
+We lose 2 disk capacity.  
+It is recommended for production environement. 
+For example 
+If we have 4 disks of 500GB each, then we get 1000GB usable space."
+	
+	The rebuild operation in RAID 6 may take longer than RAID 5 due to the presence of two parity sets.
+	
+=====================================================================================================	
+(*****)	 RAID 10
+	"RAID 10 is mirroring and striping.
+It need 4 disks (4, 6, 8, 10, 12 so on)
+It does protect data against 2 disk failure from 2 different mirror set.
+We get 50% capacity. We lose 50% capacity.
+It is recommended for production environement.
+For example
+If we have 4 disks of 500GB each, then we get 1000GB usable space."
+	
+=====================================================================================================	
+(*****)	 RAID 01
+	"RAID 01 is mirroring and striping.
+It need 4 disks (4, 6, 8, 10, 12 so on)
+It does protect data against 2 disk failure from singe stripe set.
+We get 50% capacity. We lose 50% capacity.
+It is recommended for production environement.
+For example
+If we have 4 disks of 500GB each, then we get 1000GB usable space."
+	
+=====================================================================================================	
+(*****)	RAID 50
+Need to verify	"Striping of RAID 0 with the distributed parity of RAID 5 (RAID 0 array striped across RAID5 elements)
+Minimum 6 disks???"
+	
+	
+(*****)	Main difference between RAID 10 vs RAID 01 - https://www.thegeekstuff.com/2011/10/raid10-vs-raid01/
+Review once	"Performance on both RAID 10 and RAID 01 will be the same.
+The storage capacity on these will be the same.
+
+The main difference is the fault tolerance level.
+
+RAID 01 fault tolerance is less. 
+On RAID 01, since we have only two groups of RAID 0, 
+if two drives fails (one in each group), the entire RAID 01 will fail.
+
+RAID 10 fault tolerance is more. 
+On RAID 10, since we have only two groups of RAID 1,
+since there are many groups (as the individual group is only two disks), 
+even if two drives fails (one in each group), the RAID 10 is still functional. 
+
+So, given a choice between RAID 10 and RAID 01, always choose RAID 10."
+	
+	
+(*****)	Raid Impact on Perfromacne?
+	"• In RAID 5, every write (update) to a disk manifests as four I/O operations (two reads and two writes). 
+• In RAID 6, every write (update) to a disk manifests as six I/O operations (three reads and three writes). 
+• In RAID 1 and RAID 1+0, every write manifests as two I/O operations (two writes). "
+	
+(*****)	What is redundancy?
+
+	Write Penalty?
+	
+	
+	
+	
+	
+	
+==========================================================================================================	
+(*****)	Lun masking
+
+Lun masking is mapping of a single or multiple LUNs to a single or multiple hosts.
+It is done for security reason.
+==========================================================================================================
+
+(*****)	What is LUN
+	"LUN is Logical Unit Number
+It is created in a RAIDGroup.
+RAIDGroup is made of multiple disks.
+LUN is Logical slice, which is evenly distributed across all the disks in a RAID Group.
+It is allocated to host. 
+Host sees it as a RAW disk access.
+Host need to format LUN to read and write data."
+	
+==========================================================================================================	
+(*****)	Storage power off procedure
+	Stop all applications
+	Stop all databases
+	Stop all other IO to storage
+	Shutdown Controller1
+	Shutdown Controller2
+	Shutdown all the disk shelves one by one
+	
+	
+(*****)	Storage Power on procedure
+	Power on all the disk shelves one by one and wait for 10 minutes
+	Power on Controller1
+	Power on Controller2
+	Check health of storage
+	Start all databases
+	Start all applications
+	Start all other IO to storage
+	
+	
+(*****)	Switches
+	"switches are typically smaller 1U, fixed-configuration, less redundant devices.
+Directors are large in 5U, It has large no of FC ports.
+it is chassis based, Chassis will have slots.
+In slots we can install FC port modules.
+Redundant power supplies are there."
+	
+	
+(*****)	What is spare disk
+	Spare disk is a disk, which is used to replace a failed disk.
+	
+	
+(*****)	What is IOPS?
+	"IOPS is Input/Output per second.
+One read request or one write request is 1 I/O.
+Each I/O has sizes ranging from 512bytes to 256KB or 1MB."
+	
+	
+(*****)	IOPS per disk?
+	"SATA 7200 RPM: 75-100  IOPS  - 5MB/s
+SAS 10K RPM:   125 - 150 IOPS  - 9MB/s
+SAS 15K RPM:   175 - 210 IOPS  - 12MB/s
+SSD (Depends upon Vendor):    3Gb/6Gb interface - 8000 to 100000IOPS"
+	
+	https://en.wikipedia.org/wiki/IOPS
+	https://www.techrepublic.com/blog/the-enterprise-cloud/calculate-iops-in-a-storage-array/
+	"IOPS depend on below points
+
+Rotational speed: 10,000 RPM
+Average latency: 3 ms (0.003 seconds)
+Average seek time: 4.2 (r)/4.7 (w) = 4.45 ms (0.0045 seconds)
+Calculated IOPS for this disk: 1/(0.003 + 0.0045) = about 133 IOPS"
+	
+	
+	
+	
+(*****)	What is write penalty?
+	"There is no read penalty for any RAID, but there is write penalty.
+
+RAID          Write Penalty
+RAID0          0
+RAID1          2
+RAID5          4
+RAID6          6
+RAID10         2
+	
+	
+(*****)	IOPS caculating formula for Single Disk?
+	IOPS = 1000ms/average seek time + average rotational latency time.
+	
+	
+(*****)	IOPS for RAID0
+	"If we apply, RAID0 on a pool of 8 disks (SAS 600GB 15K RPM).
+RAID0 have 0 write penalties.  IOPS calculating formula is as mentioned below.
+Total IOPS x percent of write/write penalty + Total IOPS x percent of read
+
+If write operation is 50% and read operation is 50%.
+IOPS:  1400 x 50% + 1400 x 50%
+           140 x 5 + 140 x 5
+           700 + 700
+           1400  IOPS"
+	
+	
+(*****)	IOPS for RAID1
+	"If we apply, RAID1 on 2 disks (SAS 600GB 15K RPM).
+RAID1 have 2 write penalties.  IOPS calculating formula is as mentioned below.
+Total IOPS x percent of write/write penalty + Total IOPS x percent of read
+
+If write operation is 50% and read operation is 50%.
+IOPS: 350 x 50%/2 + 350 x 50%
+           35 x 5/2 + 35 x 5
+           175/2 + 175
+           87 + 175
+           262 IOPS "
+	
+	
+(*****)	IOPS for RAID5
+	"If we apply, RAID5 on 8 disks (SAS 600GB 15K RPM).
+RAID5 have 4 write penalties.  IOPS calculating formula is as mentioned below.
+Total IOPS x percent of write/write penalty + Total IOPS x percent of read
+
+If write operation is 50% and read operation is 50%.
+IOPS: 1400 x 50%/4 + 1400 x 50%
+           140 x5/4 + 140 x 5
+           700/4 + 700
+           175 + 700
+           875 IOPS"
+	
+	
+(*****)	IOPS for RAID6
+	"If we apply, RAID6 on 8 disks (SAS 600GB 15K RPM).
+RAID5 have 6 write penalties.  IOPS calculating formula is as mentioned below.
+Total IOPS x percent of write/write penalty + Total IOPS x percent of read
+
+If write operation is 50% and read operation is 50%.
+IOPS: 1400 x 50%/6 + 1400 x 50%
+           140 x5/6 + 140 x 5
+           700/6 + 700
+           116 + 700
+           816 IOPS"
+	
+	
+(*****)	IOPS for RAID10
+	"If we apply, RAID10 on 8 disks (SAS 600GB 15K RPM).
+RAID10 have 2 write penalties.  IOPS calculating formula is as mentioned below.
+Total IOPS x percent of write/write penalty + Total IOPS x percent of read
+
+If write operation is 50% and read operation is 50%.
+IOPS: 1400 x 50%/2 + 1400 x 50%
+           140 x 5/2 + 140 x 5
+           140/2 + 700
+           70 + 700
+           770 IOPS "
+======================================================================================	
+	
+(*****)	How to calculate throughput in MB with IOPS
+	"IOPS = (MBps Throughput / KB per IO) * 1024. Or. 
+MBps = (IOPS * KB per IO) / 1024.
+MBps = 1480 * 4/1024
+MBps = 5920/1024
+MBps = 5.7 MBps"
+	
+	
+(*****)	IO Block Size
+	512 bytes to 256 KB or 1MB
+	
+======================================================================================	
+???	"What is HLD (High Level Document)?
+What is LLD (Low Level Document)?
+What is solution document?
+What is client facing role?
+What is RFP (Request for Proposal)?
+
+HLD is also called the system or macro-level design of a system. 
+LLD is also called the detailed or micro-level design of a system.
+
+The Solution Architect usually owns the high-level design document"
+	
+======================================================================================	
+(*****)	What is encryption? How does it work?
+	"Encryption is a data security feature
+
+Encryption is a technique to convert data into secret code.
+
+Encryption ensures data protection from unauthorized access if drives are removed from the system.
+
+Data can be encrypted ""in transit"" or ""at rest"".
+
+Cryptographic key is used to encrypt data."
+	
+	"There are 2 types of encryption.
+Symmetric encryption and Asymmetric encryption.
+
+In symmetric encryption, there is only one key, 
+and all communicating parties use the same key for both encryption and decryption. 
+
+In Asymmetric (It is also known as public key encryption), there are two keys: 
+One key is used for encryption, and a different key is used for decryption.
+Encryption key is known as Public key.
+Decryption key is know as private key.
+
+The decryption key is kept private.
+Encryption key is shared publicly."
+	
+	"If the data is encrypted on a hard drive and if that hard disk is lost or stolen
+then the data on that hard drive can not be decrypted without key.
+So it data is secure.
+Similarly, encrypted communications enable the communicating parties to exchange sensitive data 
+without leaking the data."
+	
+====================================================================================================	
+(*****)	What is De-Duplication and how it works?
+	"De-duplication searches for duplicate blocks which contains dulicate data.
+When duplicate block is detected, it is not retained, but instead it creates a “data pointer”.
+This ""data pointer"" points to the block which contains exact copy of data which is already stored on the disk.
+
+De-duplication feature works well with datasets that have lots of duplicated date (for example, full backups). Deduplication helps in replicating data quickly."
+====================================================================================================	
+	
+(*****)	Difference between single mode fibre cable and multimode fibre cable?
+	"It depends about the distance between source and destination (transmission distance)
+If the distance is less than a couple of miles (150 KM), we can use multimode fibre cable.
+If the distance is more than 3 miles (150 KM), we can use single mode fibre cable."
+	
+====================================================================================================	
+Imp	Which RAID delivers best performance and why?
+	
+	
+	
+Imp	Usable capacity calculation for RAID0
+	"If we take 8 disks of 1TB.
+Total raw capacity = 1 TB x 8 disks = 8 TB
+Usable capacity for ""Raid 0"" is full so = 8 TB"
+	
+	
+Imp	Usable capacity calculation for RAID1
+	"If we take 2 disks of 1TB.
+Total raw capacity = 1 TB x 2 disks = 2 TB
+Usable capacity for ""Raid1"" is 50% so = 2 TB/2 = 1 TB"
+	
+	
+Imp	Usable capacity calculation for RAID5
+	"If we take 8 disks of 1TB.
+Total raw capacity = 1 TB x 8 disks = 8 TB
+Usable capacity for ""Raid5"" is ""n-1"" so = 1 TB * 7 disks = 7 TB"
+	
+	
+Imp	Usable capacity calculation for RAID6
+	"If we take 8 disks of 1TB.
+Total raw capacity = 1 TB x 8 disks = 8 TB
+Usable capacity for ""Raid6"" is ""n-2"" so = 1 TB * 6 disks = 6 TB"
+	
+	
+Imp	Usable capacity calculation for RAID10
+	"If we take 8 disks of 1TB.
+Total raw capacity = 1 TB x 8 disks = 8 TB
+Usable capacity for ""Raid10"" is ""50%"" so = 8 TB / 2 = 4 TB"
+	
+	
+	
+=====================================================================================================	
+(*****)	What is a spare disk, hotspare or Disk Sparing?
+	"Hotspare is a disk which is not configured in any Raidgroup or pool.
+It is configured as spare disk, ready to be usded in case of disk failure.
+If any disk failed, then the data from failed disk is copied to spare disk.
+If the failed disk is not available then data is regenerated from good drives
+and stored in spare disk.
+Once failed disk is replaced, data from spare disk is copied back to new replaced disk.
+In newer storage, new disk becomes the spare disk."
+
+=====================================================================================================	
+(*****)	What is HDD and components of HDD?
+	"Traditional mechanical hard disk drive have moving components.
+SAS, NL-SAS
+
+===================================================================================
+Components of HDD
+Spindle, Motor, Magnetic coated platters, Actuator Arm with read/write head, 
+Controller board (PCB), Power Connector, Data interface, Head Assembly
+===================================================================================
+
+When we format a disk, it logically creates tracks and sectors.
+Sector is also referred to as block. 512 bytes, 2KB, 4KB.
+Block size is fixed
+Outer track have more space and inner track have less space."
+	
+	"I/O operations in hard drives are performed by rapidly moving the arm across the rotating flat platters 
+that are coated with magnetic material. 
+Data is transferred between the disk controller and magnetic platters through the read/write (R/W) head 
+which is attached to the arm. 
+Data can be recorded and erased on magnetic platters any number of times. 
+
+A typical hard disk drive consists of one or more flat circular disks called platters. 
+The data is recorded on these platters in binary codes. 
+The set of rotating platters is sealed in a case, called Head Disk Assembly (HDA). 
+A platter is a rigid, round disk coated with magnetic material on both surfaces (top and bottom)."
+	
+	"Data can be written to or read from both surfaces of the platter. 
+The number of platters and the storage capacity of each platter determine the total capacity of the drive. 
+
+A spindle connects all the platters and is connected to a motor. 
+The motor of the spindle rotates with a constant speed. 
+The disk platter spins at a speed of several thousands of revolutions per minute (RPM). 
+
+When the spindle rotates, a microscopic air gap is maintained between the R/W heads and the platters, 
+which are known as the head flying height. 
+This air gap is removed when the spindle stops rotating and the R/W head rests on a special area 
+on the platter near the spindle. This area is called the landing zone."
+	
+	"R/W heads are mounted on the actuator arm assembly, 
+which positions the R/W head at the location on the platter where the data must be written or read. 
+The R/W heads for all platters on a drive are attached to one actuator arm assembly 
+and move across the platters simultaneously. 
+
+The controller is a printed circuit board, mounted at the bottom of a disk drive. 
+It consists of a microprocessor, internal memory, circuitry, and firmware. 
+The firmware controls the power that is supplied to the spindle motor 
+and controls the speed of the motor. 
+It also manages the communication between the drive and the compute system. 
+In addition, it controls the R/W operations by moving the actuator arm and switching between 
+different R/W heads, and performs the optimization of data access."
+	
+=====================================================================================================	
+(*****)	What is seek time?
+	"The seek time is also known as access time.
+Seek time is the time that is taken to position the actuator arm and R/W heads over the correct track. 
+The lower the seek time, the faster the I/O operation. "
+	
+=====================================================================================================	
+(*****)	What is rotational latency?
+	"Rotational latency is the time that is taken by the platter to rotate and position the sector under the R/W head.
+Rotational latency depends on the rotation speed of the spindle and is measured in milliseconds."
+	
+	The data transfer rate (also called transfer rate) denotes the average amount of data per unit time that the drive can deliver to the HBA. In a read operation, the data first moves from disk platters to R/W heads; then it moves to the drive’s internal buffer. Finally, data moves from the buffer through the interface to the HBA on a compute.  
+	
+	Disk service time = Seek time + Rotational latency + Data transfer rate
+	
+	
+NL-SAS disk ::	"NearLine Serial Attached SCSI
+NL-SAS drive are Enterprise SATA drives with a SAS interface head for I/O."
+	
+	
+SAS disk : Serial Attached SCSI
+	
+=====================================================================================================
+	
+(*****)	What is SSD disk
+	"SSD disks are different from Hard disk.
+SSD disk have non-volatile flash storage to store data persistently. 
+They do not have any movable part, therefor no RPM (Revolution Per Minute).
+They consume less power and they generate less heat as compared to hard disk drives.
+SSD disks provide better performance than hard disk."
+	
+	"SSDs are semiconductor, random-access devices
+SSD performs random reads the best."
+	
+=====================================================================================================	
+(*****)	What is Non-Volatile Memory Express?
+	
+=====================================================================================================	
+	
+(*****)	What is Storage Class Memory?
+	
+	
+=====================================================================================================	
+
+Less Imp	What Is Q-depth? How To Calculate It?
+	The queue depth is the maximum number of commands that can be queued on the system at the same time.
+	"32.	Is The Queue Depth =execution Throttle= Maximum Number Of Simultaneous I/o For Each Lun On A Particular Path To The Storage Port? (L3)"
+	Calculation of the maximum queue depth: The queue depth is the number of I/O operations that can be run in parallel on a device.
+	
+	
+Imp	What Are The Generic Method To Provision San Storage From Any Array?
+	"Plan
+Validation  with Support Matrix for Host Connectivity
+Provide Connectivity
+Pick Volumes
+Make Meta Volumes if necessary
+Map out Zoning
+Map to storage arrays Ports
+Create Zones
+LUN Mask
+Discover on Server"
+	
+=====================================================================================================
+What is the iscsi port number? ( ** ) 
+
+The iSCSI (Internet Small Computer System Interface) protocol typically uses port 3260 for communication. Port 3260 is the default port number for iSCSI, both for the well-known port and the registered port. However, it's worth noting that iSCSI can be configured to use a different port if needed. If a different port is used, it would need to be specified in the connection configuration.
+
+=====================================================================================================	
+	
+-- What is an HBA?  ( *** ) 
+	"HBA is a Host Bus Adapters which is installed in server and it is connected to SAN Switch 
+using fibre optic cable. It is used to access stroage LUNs using fibre channel protocol."
+	
+	
+HBA stands for Host Bus Adapter. It is a hardware device that allows a computer to connect to a storage device or a network. The primary purpose of an HBA is to provide the necessary interface and processing capabilities for the computer to communicate with storage devices, typically using a high-speed data transfer technology like Fibre Channel or iSCSI.
+
+
+=====================================================================================================	
+	
+(*****)	What is Utilization
+	Utilization means business of CPU, Memory, Cache, Disk etc
+	
+	
+(*****)	What is Random I/O?
+	"In random I/O, more seek time and rotational latency time is required, 
+so it is slower than sequential I/O.
+Blocks are spread across tracks.
+I/O Which is addressed to regions on the LUN which are distant form each other."
+	
+=====================================================================================================	
+(*****)	What is Sequential I/O?
+	"Sequential I/O is faster than random I/O, as in sequential I/O, there is less seek time and rotational latency time.
+I/O to regions on the LUN which are adjacent.
+Blocks are adjacent to each other."
+	
+================================================================================================	
+(*****)	What is Skew?
+???	This refers to the difference in I/O levels between the most busy and the most idle blocks on a LUN.
+Database tables would have high skew, whereas a full backup would have minimal skew.
+	
+================================================================================================	
+(*****)	What is disaster recovery versus data backup?
+	"In Backup, we take backup of production data to tape and disk drive.
+We can send tapes offsite or keep onsite in a vault.
+Backup can be daily full or weekly full and daily incremental.
+Whenever required we can use tapes to restore data.
+
+In Disaster recovery, we copy production data from DC to DR site.
+If any disaster happens at DC site then we can run all the production data from DR site."
+	
+=====================================================================================================	
+(*****)	FC cable type requirement
+	"LC to LC: Lucent connector type
+SFP: Small Form Factor Pluggable
+Single mode FC cable
+Multimode FC cable"
+	
+	
+(*****)	LTO tape size
+	"LTO 1, 2, 3, 4, 5, 6, 7, 8
+LTO 1: 100GB/200GB
+LTO 2: 200GB/400GB
+LTO 3: 400GB/800GB 
+LTO 4: 800GB/1.6TB
+LTO 5: 1.5TB/3TB
+LTO 6: 2.5TB/6.25TB
+LTO 7: 6TB/15TB
+LTO 8: 12TB/30TB"
+	
+=====================================================================================================	
+(*****)	Storage efficiency
+	Thin provisioning, Deduplication and compression are the efficiency feature of storage.
+	
+=====================================================================================================	
+(*****)	 ---> Storage performance analysis, What is SKEW?
+???	Performance key matrix? (IOPS, latency and throughpout, cache utilization, CPU and Memory utilzation of Storage, Switch port utilization, disk utilization)
+	"https://www.youtube.com/watch?v=A8h5cMjooGs
+https://faststorage.eu/emc-world-day-4-vnx-skew-data-placement/#:~:text=Skew%20will%20indicate%20how%20much,built%20out%20of%201GB%20chunks.
+
+Skew will indicate how much of your capacity is generating how much of your IOps.
+Check SKEW in performance analysis and in the NAR file (VNX Analyzer)"
+	
+	
+(*****)	List of issues faced in storage, backup, vmware, performance etc?
+???	
+	
+Less Imp	Configure NFS from Linux side 
+	https://www.youtube.com/watch?v=o5hXWtWn8aY
+Weak	"Create a new directory (mount point) in Linux server to mount NFS share (mkdir /nfs-share)
+Now mount NFS share to mount point
+mount -t nfs 192.168.0.220:/mnt/nas-pool1/freenas1 /nfs-share/
+mount (-t = tie) (nfs = type) 192.168.0.220: (Server IP) /mnt/nas-pool1/freenas1 (path of the shared folder) /nfs-share (mount point)
+
+Install nfs client if it is not there
+
+Check mount by running mount -l"
+	
+	
+Less Imp	Configure CIFS from Windows side 
+???	
+	
+	
+Less Imp	Understand how raid works (XOR)
+	"http://blog.open-e.com/how-does-raid-5-work/
+
+a1, a2, a3, ap
+b1,b2,bp,b3
+c1, cp, c2, c3"
+	
+	
+Less Imp	What is Queue Length?
+	A measure of how many IO s are starting to back up in the queue,  under 10 is a good number.
+	No of data packets or frames waiting in the queue to be processed is queue length.
+	
+	
+2	Boot from SAN
+	"Create a LUN on the storage system and map it to the host. This LUN will be the SAN boot LUN.
+Enable the BIOS of the HBA port to which the SAN boot LUN is mapped.
+Save and exit.
+Reboot the host.
+Install the operating system on the SAN boot LUN.
+Install the Host Utilities.
+Configure DM-Multipath.B267"
+	
+	
+(*****)	Persistent binding
+	"an environment that utilizes persistent binding, once a system has booted, it will maintain a constant view of the same target ID because the driver software remaps the SCSI target ID to the new WWNN on the fly. 
+  
+
+  
+Persistent Binding Advantages: 
+  
+A second system may use a different SCSI target ID for that target. Thus, an administrator seeking to work with the same target across multiple hosts must be prepared to encounter the situation where the same fibre channel target is known by different SCSI target IDs. Use persistent binding to maintain a consistent target ID on all systems. A common scenario for this type of situation would be a network administrator who needs to consistently map to a tape drive for backup purposes. "
+	"Use the Persistent Binding for Tape Devices.
+Persistent binding is a host-centric enforced way of directing an operating system to assign certain SCSI target IDs and LUNs."
+	
+	
+========================================================================================	
+
+"29.	How Will You Find Errors On Various Os Operating Systems To Troubleshoot Problems? (L2)
+I will check the OS log files/event logs for errors:"
+	"Windows: event logs
+linux: /var/log/messages
+ESX:   /var/log/vmkernel
+ESXi:  /var/log/messages 
+	
+	
+========================================================================================	
+"45.	How Will You Get The Wwn Of All Your Hba’s To Provision San Storage on Windows / Linux / VMware ESXi? (L2)"
+	"WIN:
+emulexcfg –emc or
+hbanywhere
+I can use Storage Explorer to see detailed information about the Fibre Channel host bus adapters (HBAs).
+VMware vSphere ESX/ESXi host
+There are several ways to get HBA WWNs on VM
+vSphere Client;
+Using ESXi Shell;
+Using Powershell / PowerCLI script.
+LINUX ---> /sys/class/scsi_host/hostN/device/fc_host/hostN/port_name
+Where “N” is the number of device for your fibre HBAs"
+	
+	
+	
+	
+2	Software and hardware Data encryption for storage EMC VNX 5200
+	https://www.emc.com/collateral/white-paper/h13296-dare-wp.pdf
+
+
+========================================================================================
+
+A Storage Area Network (SAN) offers several advantages in terms of centralized storage management, high performance, scalability, and flexibility. Here are some key advantages of implementing a SAN:
+
+Centralized Storage Management:
+
+Efficient Storage Allocation: SAN allows for centralized and efficient storage management. Storage resources can be allocated and managed centrally, making it easier to optimize storage utilization.
+Centralized Backup and Recovery: Data backup and recovery processes can be centralized, simplifying management and ensuring consistent and reliable backup procedures.
+High Performance:
+
+Dedicated Network: SANs typically use a dedicated network for storage traffic, separate from the main LAN. This dedicated network helps to ensure high performance and low latency for storage-related operations.
+Faster Data Access: SANs leverage high-speed technologies like Fibre Channel or iSCSI, providing faster data access and transfer speeds compared to traditional storage solutions.
+Scalability:
+
+Easy Expansion: SANs are designed to be easily scalable. As storage needs grow, additional storage devices or capacity can be seamlessly added to the SAN without affecting existing systems.
+Flexible Architecture: SANs support a modular and flexible architecture, allowing organizations to scale up their storage infrastructure based on evolving requirements.
+Improved Availability and Reliability:
+
+Redundancy: SANs often incorporate redundant components and technologies, such as dual controllers, power supplies, and paths, to enhance system availability and reliability.
+High Availability Features: Features like failover and load balancing contribute to high availability by ensuring continuous access to data even in the event of component failures.
+Data Sharing and Collaboration:
+
+Shared Access: Multiple servers within a SAN can access shared storage resources simultaneously. This enables efficient data sharing and collaboration among different applications and systems.
+Clustered Environments: SANs are often used in clustered server environments, where multiple servers work together to provide high availability and fault tolerance.
+Flexibility and Virtualization:
+
+Storage Virtualization: SANs often support storage virtualization, allowing for the abstraction of physical storage resources. This enhances flexibility in managing and provisioning storage.
+Dynamic Provisioning: Storage resources can be dynamically allocated or de-allocated based on changing requirements, providing flexibility in resource utilization.
+Enhanced Security:
+
+Access Controls: SANs offer robust access controls and security features to ensure that only authorized users and systems can access specific storage resources.
+Data Encryption: Many SAN technologies support data encryption, enhancing the security of sensitive information during storage and transmission.
+Backup and Disaster Recovery:
+
+Efficient Backup: SANs facilitate efficient backup processes by providing high-speed connectivity and centralized management. This is crucial for meeting backup windows and ensuring data protection.
+Disaster Recovery Planning: SANs play a key role in disaster recovery planning by enabling the replication of data to remote locations, ensuring data availability in the event of a disaster.
+In summary, a Storage Area Network provides a robust and efficient solution for managing and accessing storage resources in large-scale enterprise environments, offering benefits in terms of performance, scalability, availability, and flexibility.
+
+
+What is data storage?
+
+Differentiate between volatile and non-volatile storage.
+
+Explain the difference between SAN (Storage Area Network) and NAS (Network Attached Storage).
+What is the purpose of a file system?
+Define RAID. How does it provide fault tolerance?
+What is the role of a storage controller?
+====================================================================
+Differentiate between block-level and file-level storage.
+Hard Disk Drives (HDDs):
+---------------------------------------------------------------------------------------
+How does a hard disk drive (HDD) work?
+---------------------------------------------------------------------------------------
+What is the purpose of a disk platter?
+---------------------------------------------------------------------------------------
+Explain the concept of seek time in HDDs.
+---------------------------------------------------------------------------------------
+What is RPM in the context of HDDs?
+---------------------------------------------------------------------------------------
+Describe the difference between SATA and SAS interfaces.
+---------------------------------------------------------------------------------------
+How does a write cache improve HDD performance?
+Solid State Drives (SSDs):
+
+What are the advantages of SSDs over HDDs?
+Explain the concept of wear leveling in SSDs.
+Differentiate between SLC, MLC, and TLC NAND flash.
+What is TRIM in SSDs?
+How does an SSD's performance degrade over time?
+RAID Configurations:
+---------------------------------------------------------------------------------------
+Define RAID 0, RAID 1, and RAID 5.
+
+---------------------------------------------------------------------------------------
+
+What is the purpose of parity in RAID 5?
+
+---------------------------------------------------------------------------------------
+Explain the concept of RAID 10.
+
+---------------------------------------------------------------------------------------
+When would you choose RAID 6 over RAID 5?
+---------------------------------------------------------------------------------------
+
+
+
+
+
+===========================================================================================
+
+Storage Networking:
+===========================================================================================
+
+What is Fibre Channel?
+
+===========================================================================================
+
+Differentiate between iSCSI and Fibre Channel.
+What is the purpose of zoning in Fibre Channel?
+Explain the concept of LUN masking.
+How does FCoE (Fibre Channel over Ethernet) work?
+Network-Attached Storage (NAS):
+
+What are the key features of a NAS device?
+Explain the role of a NAS head.
+How does a NAS device handle file sharing?
+Storage Protocols:
+
+===========================================================================================
+What is NFS (Network File System)?
+===========================================================================================
+
+Explain the purpose of CIFS (Common Internet File System).
+How does SMB (Server Message Block) work?
+What is iSCSI, and how does it differ from Fibre Channel?
+Cloud Storage:
+
+What are the benefits of using cloud storage?
+Explain the difference between object storage and block storage in the cloud.
+What is AWS S3?
+How does data migration work in cloud storage?
+
+
+
+===========================================================================================
+Storage Virtualization:
+
+Define storage virtualization.
+How does storage virtualization simplify storage management?
+Explain the concept of a virtual LUN.
+Backup and Recovery:
+
+What is the 3-2-1 backup rule?
+Differentiate between full backup, incremental backup, and differential backup.
+Explain the concept of snapshot-based backups.
+Storage Security:
+
+How can data-at-rest encryption enhance storage security?
+What is the purpose of access controls in storage systems?
+Explain the concept of secure erase for SSDs.
+Storage Management:
+
+What is LUN provisioning?
+How does thin provisioning work?
+Explain the concept of deduplication.
+
+Performance Optimization:
+What are the factors that can impact storage performance?
+How does caching improve storage performance?
+Explain the concept of tiered storage.
+File Systems:
+
+What is the purpose of a journaling file system?
+Differentiate between FAT32 and NTFS.
+Explain the features of the ext4 file system.
+Storage Monitoring and Troubleshooting:
+
+How do you monitor storage performance?
+What tools are commonly used for storage troubleshooting?
+Storage Architecture:
+
+What is the difference between DAS (Direct-Attached Storage) and SAN?
+Explain the concept of hyper-converged infrastructure.
+How does software-defined storage differ from traditional storage architectures?
+Storage Industry Trends:
+
+What is NVMe (Non-Volatile Memory Express)?
+How does NVMe improve storage performance?
+Explain the concept of storage-class memory.
+
+=================================================================================
+
+
+====================================================================
+Storage Disaster Recovery:
+
+What is a disaster recovery plan, and why is it important for storage systems?
+How does asynchronous replication differ from synchronous replication?
+
+Storage Capacity Planning:
+
+What factors should be considered when planning for storage capacity?
+How do you estimate future storage requirements?
+Storage Compliance and Regulations:
+
+What storage-related compliance standards exist, and why are they important?
+How does GDPR impact storage practices?
+Storage Performance Metrics:
+
+Explain the significance of IOPS (Input/Output Operations Per Second) in storage.
+What is latency in storage, and how is it measured?
+Storage Monitoring Tools:
+
+Name some popular storage monitoring tools and explain their key features.
+
+Disaster Recovery Strategies:
+Describe different disaster recovery strategies for storage systems.
+
+Storage Resource Pools:
+What is a storage resource pool, and how does it contribute to resource optimization?
+Data Replication:
+
+Explain the purpose of data replication in storage.
+NVMe over Fabrics:
+
+What is NVMe over Fabrics (NVMe-oF), and how does it differ from traditional NVMe?
+Storage QoS (Quality of Service):
+
+What is Storage QoS, and why is it important?
+
+
+Storage Automation:
+
+How can automation improve storage management tasks?
+Storage Compression:
+
+What is storage compression, and how does it impact storage efficiency?
+Data Archiving:
+
+What is data archiving, and why is it necessary for long-term storage?
+Storage Redundancy:
+
+Explain the concept of storage redundancy and its role in high availability.
+Data Migration Strategies:
+
+Describe different strategies for migrating data between storage systems.
+Storage Scalability:
+
+How does storage scalability contribute to the flexibility of storage infrastructure?
+Storage Tiers:
+
+What are storage tiers, and how are they implemented in storage architectures?
+Storage Backup Strategies:
+
+Describe strategies for ensuring reliable and efficient storage backups.
+Storage Encryption:
+
+How does storage encryption contribute to data security?
+Storage API (Application Programming Interface):
+
+Explain the role of storage APIs in integrating storage with applications.
+Data Synchronization:
+
+How does data synchronization work in distributed storage systems?
+Software-Defined Storage (SDS):
+
+What is software-defined storage, and how does it differ from traditional storage?
+Storage Load Balancing:
+
+How does storage load balancing contribute to performance optimization?
+Storage Containers:
+
+What role do storage containers play in modern application deployment?
+Storage Compliance Audits:
+
+=====================
+
+## What is Data Deduplication?
+
+**Data deduplication** is a data compression technique used to eliminate duplicate copies of repeating data. It is commonly used in storage systems to improve storage efficiency and reduce the amount of storage space required. The process involves identifying and removing redundant data blocks, ensuring that only one unique instance of the data is stored.
+
+### How Does Data Deduplication Work?
+
+1. **Data Chunking**: The data is divided into smaller chunks or segments. These chunks can be of fixed size or variable size, depending on the deduplication algorithm used.
+
+2. **Hashing**: Each chunk is processed through a cryptographic hash function to generate a unique identifier (hash value). This hash value acts as a fingerprint for the chunk.
+
+3. **Comparison**: The hash value of each chunk is compared against a database of existing hash values. If the hash value already exists in the database, it indicates that the chunk is a duplicate.
+
+4. **Storage**: 
+   - **Unique Chunks**: If the chunk is unique (i.e., its hash value is not found in the database), it is stored, and its hash value is added to the database.
+   - **Duplicate Chunks**: If the chunk is a duplicate, it is not stored again. Instead, a reference to the existing chunk is created.
+
+5. **Reconstruction**: When data needs to be retrieved, the system uses the references to reconstruct the original data from the stored chunks.
+
+## Benefits of Using Data Deduplication in Storage
+
+1. **Storage Efficiency**: By eliminating duplicate data, deduplication significantly reduces the amount of storage space required. This is particularly beneficial for environments with large volumes of redundant data, such as backup and archival systems.
+
+2. **Cost Savings**: Reduced storage requirements lead to lower costs for storage hardware, maintenance, and data center space. This can result in significant cost savings for organizations.
+
+3. **Improved Backup and Recovery**: Deduplication can enhance the efficiency of backup and recovery processes. Smaller data sets mean faster backup times and quicker recovery in case of data loss.
+
+4. **Network Efficiency**: In distributed storage systems, deduplication can reduce the amount of data transmitted over the network. This leads to lower bandwidth usage and faster data transfers.
+
+5. **Environmental Impact**: By reducing the need for additional storage hardware, deduplication contributes to lower energy consumption and a smaller carbon footprint.
+
+6. **Scalability**: Deduplication allows storage systems to scale more efficiently by optimizing the use of available storage resources.
+
+### Follow-Up Questions
+
+- Are you interested in specific deduplication algorithms or techniques?
+- Would you like to know about any particular use cases or examples of data deduplication in practice?
+- Do you need information on implementing data deduplication in a specific storage system or software?
